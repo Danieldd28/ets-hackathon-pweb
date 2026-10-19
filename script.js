@@ -2,6 +2,7 @@ const KATEGORI = ['Proyek', 'Makan', 'Transport', 'Peralatan', 'Lainnya'];
 
 const state = {
   transaksi: [],
+  hapusId: null,
 };
 
 function elemen(selector) {
@@ -25,10 +26,28 @@ function bandingkanTerbaru(a, b) {
   return a.tanggal < b.tanggal ? 1 : -1;
 }
 
+function buatTombol(teks, aksi, id) {
+  const tombol = document.createElement('button');
+  tombol.type = 'button';
+  tombol.textContent = teks;
+  tombol.dataset.aksi = aksi;
+  tombol.dataset.id = String(id);
+  return tombol;
+}
+
 function buatPesanKosong(teks) {
   const kosong = document.createElement('li');
   kosong.textContent = teks;
   return kosong;
+}
+
+function buatAksiTransaksi(transaksi) {
+  if (state.hapusId !== transaksi.id) {
+    return [buatTombol('Hapus', 'hapus', transaksi.id)];
+  }
+  const tanya = document.createElement('span');
+  tanya.textContent = 'Hapus transaksi ini?';
+  return [tanya, buatTombol('Ya', 'ya-hapus', transaksi.id), buatTombol('Batal', 'batal-hapus', transaksi.id)];
 }
 
 function buatItemTransaksi(transaksi) {
@@ -43,7 +62,7 @@ function buatItemTransaksi(transaksi) {
   nominal.className = transaksi.jenis;
   nominal.textContent = tanda + formatRupiah(transaksi.nominal);
 
-  item.append(info, nominal);
+  item.append(info, nominal, ...buatAksiTransaksi(transaksi));
   return item;
 }
 
@@ -86,6 +105,22 @@ function simpanTransaksi(event) {
   render();
 }
 
+function hapusTransaksi(id) {
+  state.transaksi = state.transaksi.filter((t) => t.id !== id);
+  state.hapusId = null;
+}
+
+function tanganiAksiTransaksi(event) {
+  const tombol = event.target.closest('[data-aksi]');
+  if (!tombol) return;
+  const id = Number(tombol.dataset.id);
+  const aksi = tombol.dataset.aksi;
+  if (aksi === 'hapus') state.hapusId = id;
+  if (aksi === 'batal-hapus') state.hapusId = null;
+  if (aksi === 'ya-hapus') hapusTransaksi(id);
+  render();
+}
+
 function isiPilihanKategori() {
   for (const selector of ['#input-kategori']) {
     for (const kategori of KATEGORI) {
@@ -99,6 +134,7 @@ function isiPilihanKategori() {
 
 function pasangListener() {
   elemen('#form-transaksi').addEventListener('submit', simpanTransaksi);
+  elemen('#daftar-transaksi').addEventListener('click', tanganiAksiTransaksi);
 }
 
 isiPilihanKategori();

@@ -33,7 +33,7 @@
         <input id="tagihan-klien" type="text" autocomplete="off">
 
         <label for="tagihan-nominal">Nominal (Rp)</label>
-        <input id="tagihan-nominal" type="number" min="0">
+        <input id="tagihan-nominal" class="uang" type="text" inputmode="numeric" placeholder="Rp 0" autocomplete="off">
 
         <button type="submit">Tambah tagihan</button>
         <p id="error-tagihan" class="error" role="alert"></p>
@@ -57,7 +57,7 @@
         <select id="input-kategori"></select>
 
         <label for="input-nominal">Nominal (Rp)</label>
-        <input id="input-nominal" type="number" min="0">
+        <input id="input-nominal" class="uang" type="text" inputmode="numeric" placeholder="Rp 0" autocomplete="off">
 
         <label for="input-catatan">Catatan (opsional)</label>
         <input id="input-catatan" type="text" autocomplete="off">

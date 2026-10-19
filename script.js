@@ -18,6 +18,19 @@ function formatRupiah(angka) {
   return 'Rp ' + angka.toLocaleString('id-ID');
 }
 
+function ambilAngka(teks) {
+  let digit = '';
+  for (const huruf of teks) {
+    if (huruf >= '0' && huruf <= '9') digit += huruf;
+  }
+  return Number(digit);
+}
+
+function formatInputUang(event) {
+  const angka = ambilAngka(event.target.value);
+  event.target.value = angka > 0 ? formatRupiah(angka) : '';
+}
+
 function muatData(kunci) {
   try {
     const hasil = JSON.parse(localStorage.getItem(kunci));
@@ -198,7 +211,7 @@ function ambilDataTransaksi() {
     tanggal: elemen('#input-tanggal').value,
     jenis: elemen('#input-jenis').value,
     kategori: elemen('#input-kategori').value,
-    nominal: Number(elemen('#input-nominal').value),
+    nominal: ambilAngka(elemen('#input-nominal').value),
     catatan: elemen('#input-catatan').value,
   };
 }
@@ -207,7 +220,7 @@ function isiFormTransaksi(transaksi) {
   elemen('#input-tanggal').value = transaksi.tanggal;
   elemen('#input-jenis').value = transaksi.jenis;
   elemen('#input-kategori').value = transaksi.kategori;
-  elemen('#input-nominal').value = transaksi.nominal;
+  elemen('#input-nominal').value = formatRupiah(transaksi.nominal);
   elemen('#input-catatan').value = transaksi.catatan;
 }
 
@@ -275,7 +288,7 @@ function simpanTagihan(event) {
   const data = {
     tanggal: elemen('#tagihan-tanggal').value,
     klien: elemen('#tagihan-klien').value,
-    nominal: Number(elemen('#tagihan-nominal').value),
+    nominal: ambilAngka(elemen('#tagihan-nominal').value),
   };
   const pesan = validasiTagihan(data);
   tampilkanError('#error-tagihan', pesan);
@@ -334,6 +347,9 @@ function pasangListener() {
   elemen('#form-tagihan').addEventListener('submit', simpanTagihan);
   elemen('#daftar-tagihan').addEventListener('click', tanganiAksiTagihan);
   elemen('#filter').addEventListener('input', ubahFilter);
+  for (const isian of document.querySelectorAll('.uang')) {
+    isian.addEventListener('input', formatInputUang);
+  }
 }
 
 state.transaksi = muatData(KUNCI_TRANSAKSI);

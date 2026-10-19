@@ -42,7 +42,7 @@
     </section>
 
     <section id="transaksi">
-      <h2>Tambah transaksi</h2>
+      <h2 id="judul-form">Tambah transaksi</h2>
       <form id="form-transaksi" novalidate>
         <label for="input-tanggal">Tanggal</label>
         <input id="input-tanggal" type="date">
@@ -62,7 +62,8 @@
         <label for="input-catatan">Catatan (opsional)</label>
         <input id="input-catatan" type="text" autocomplete="off">
 
-        <button type="submit">Simpan</button>
+        <button id="tombol-simpan" type="submit">Simpan</button>
+        <button id="tombol-batal-edit" type="button" hidden>Batal edit</button>
         <p id="error-transaksi" class="error" role="alert"></p>
       </form>
     </section>

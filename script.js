@@ -5,6 +5,7 @@ const KATEGORI = ['Proyek', 'Makan', 'Transport', 'Peralatan', 'Lainnya'];
 const state = {
   transaksi: [],
   tagihan: [],
+  editId: null,
   hapusId: null,
 };
 
@@ -36,6 +37,13 @@ function buatId() {
     if (item.id > terbesar) terbesar = item.id;
   }
   return terbesar + 1;
+}
+
+function cariById(daftar, id) {
+  for (const item of daftar) {
+    if (item.id === id) return item;
+  }
+  return null;
 }
 
 function hitungRingkasan() {
@@ -89,7 +97,7 @@ function buatPesanKosong(teks) {
 
 function buatAksiTransaksi(transaksi) {
   if (state.hapusId !== transaksi.id) {
-    return [buatTombol('Hapus', 'hapus', transaksi.id)];
+    return [buatTombol('Edit', 'edit', transaksi.id), buatTombol('Hapus', 'hapus', transaksi.id)];
   }
   const tanya = document.createElement('span');
   tanya.textContent = 'Hapus transaksi ini?';
@@ -157,10 +165,18 @@ function renderTagihan() {
   wadah.replaceChildren(...daftar.map(buatItemTagihan));
 }
 
+function renderForm() {
+  const sedangEdit = state.editId !== null;
+  elemen('#judul-form').textContent = sedangEdit ? 'Edit transaksi' : 'Tambah transaksi';
+  elemen('#tombol-simpan').textContent = sedangEdit ? 'Simpan perubahan' : 'Simpan';
+  elemen('#tombol-batal-edit').hidden = !sedangEdit;
+}
+
 function render() {
   renderRingkasan();
   renderDaftar();
   renderTagihan();
+  renderForm();
 }
 
 function ambilDataTransaksi() {
@@ -171,6 +187,14 @@ function ambilDataTransaksi() {
     nominal: Number(elemen('#input-nominal').value),
     catatan: elemen('#input-catatan').value,
   };
+}
+
+function isiFormTransaksi(transaksi) {
+  elemen('#input-tanggal').value = transaksi.tanggal;
+  elemen('#input-jenis').value = transaksi.jenis;
+  elemen('#input-kategori').value = transaksi.kategori;
+  elemen('#input-nominal').value = transaksi.nominal;
+  elemen('#input-catatan').value = transaksi.catatan;
 }
 
 function kosongkanFormTransaksi() {
@@ -186,15 +210,37 @@ function simpanTransaksi(event) {
   tampilkanError('#error-transaksi', pesan);
   if (pesan) return;
 
-  state.transaksi.push({ id: buatId(), ...data });
+  if (state.editId === null) {
+    state.transaksi.push({ id: buatId(), ...data });
+  } else {
+    const id = state.editId;
+    state.transaksi = state.transaksi.map((t) => (t.id === id ? { id, ...data } : t));
+  }
+  state.editId = null;
   kosongkanFormTransaksi();
   simpanData();
+  render();
+}
+
+function mulaiEdit(id) {
+  const transaksi = cariById(state.transaksi, id);
+  if (!transaksi) return;
+  state.editId = id;
+  isiFormTransaksi(transaksi);
+  tampilkanError('#error-transaksi', '');
+}
+
+function batalEdit() {
+  state.editId = null;
+  kosongkanFormTransaksi();
+  tampilkanError('#error-transaksi', '');
   render();
 }
 
 function hapusTransaksi(id) {
   state.transaksi = state.transaksi.filter((t) => t.id !== id);
   state.hapusId = null;
+  if (state.editId === id) batalEdit();
   simpanData();
 }
 
@@ -203,6 +249,7 @@ function tanganiAksiTransaksi(event) {
   if (!tombol) return;
   const id = Number(tombol.dataset.id);
   const aksi = tombol.dataset.aksi;
+  if (aksi === 'edit') mulaiEdit(id);
   if (aksi === 'hapus') state.hapusId = id;
   if (aksi === 'batal-hapus') state.hapusId = null;
   if (aksi === 'ya-hapus') hapusTransaksi(id);
@@ -263,6 +310,7 @@ function isiPilihanKategori() {
 
 function pasangListener() {
   elemen('#form-transaksi').addEventListener('submit', simpanTransaksi);
+  elemen('#tombol-batal-edit').addEventListener('click', batalEdit);
   elemen('#daftar-transaksi').addEventListener('click', tanganiAksiTransaksi);
   elemen('#form-tagihan').addEventListener('submit', simpanTagihan);
   elemen('#daftar-tagihan').addEventListener('click', tanganiAksiTagihan);

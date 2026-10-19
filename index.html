@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catatan Keuangan Freelancer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>Catatan Keuangan Freelancer</h1>
+  </header>
+
+  <main>
+    <section id="transaksi">
+      <h2>Tambah transaksi</h2>
+      <form id="form-transaksi" novalidate>
+        <label for="input-tanggal">Tanggal</label>
+        <input id="input-tanggal" type="date">
+
+        <label for="input-jenis">Jenis</label>
+        <select id="input-jenis">
+          <option value="pemasukan">Pemasukan</option>
+          <option value="pengeluaran">Pengeluaran</option>
+        </select>
+
+        <label for="input-kategori">Kategori</label>
+        <select id="input-kategori"></select>
+
+        <label for="input-nominal">Nominal (Rp)</label>
+        <input id="input-nominal" type="number" min="0">
+
+        <label for="input-catatan">Catatan (opsional)</label>
+        <input id="input-catatan" type="text" autocomplete="off">
+
+        <button type="submit">Simpan</button>
+      </form>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>ETS Pemrograman Web — Persona: Pekerja lepas</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

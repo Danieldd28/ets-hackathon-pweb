@@ -1,0 +1,89 @@
+:root {
+  --warna-bg: #f6f8fa;
+  --warna-kartu: #ffffff;
+  --warna-teks: #1f2933;
+  --warna-aksen: #2c6e49;
+  --warna-garis: #d0d7de;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background-color: var(--warna-bg);
+  color: var(--warna-teks);
+  margin: 0;
+  padding: 1rem;
+  line-height: 1.5;
+}
+
+header,
+main,
+footer {
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+section {
+  background-color: var(--warna-kartu);
+  border: 1px solid var(--warna-garis);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-size: 1.125rem;
+  margin-top: 0;
+}
+
+form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+label {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+input,
+select,
+button {
+  font: inherit;
+  padding: 0.5rem;
+  border: 1px solid var(--warna-garis);
+  background-color: var(--warna-kartu);
+  color: inherit;
+  width: 100%;
+}
+
+button {
+  cursor: pointer;
+  width: auto;
+}
+
+button[type="submit"] {
+  background-color: var(--warna-aksen);
+  border-color: var(--warna-aksen);
+  color: #ffffff;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--warna-aksen);
+  outline-offset: 2px;
+}
+

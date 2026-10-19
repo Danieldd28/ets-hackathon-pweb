@@ -1,3 +1,4 @@
+const KUNCI_TRANSAKSI = 'ets-keuangan:transaksi';
 const KATEGORI = ['Proyek', 'Makan', 'Transport', 'Peralatan', 'Lainnya'];
 
 const state = {
@@ -11,6 +12,19 @@ function elemen(selector) {
 
 function formatRupiah(angka) {
   return 'Rp ' + angka.toLocaleString('id-ID');
+}
+
+function muatData(kunci) {
+  try {
+    const hasil = JSON.parse(localStorage.getItem(kunci));
+    return Array.isArray(hasil) ? hasil : [];
+  } catch {
+    return [];
+  }
+}
+
+function simpanData() {
+  localStorage.setItem(KUNCI_TRANSAKSI, JSON.stringify(state.transaksi));
 }
 
 function buatId() {
@@ -102,12 +116,14 @@ function simpanTransaksi(event) {
 
   state.transaksi.push({ id: buatId(), ...data });
   kosongkanFormTransaksi();
+  simpanData();
   render();
 }
 
 function hapusTransaksi(id) {
   state.transaksi = state.transaksi.filter((t) => t.id !== id);
   state.hapusId = null;
+  simpanData();
 }
 
 function tanganiAksiTransaksi(event) {
@@ -137,6 +153,7 @@ function pasangListener() {
   elemen('#daftar-transaksi').addEventListener('click', tanganiAksiTransaksi);
 }
 
+state.transaksi = muatData(KUNCI_TRANSAKSI);
 isiPilihanKategori();
 pasangListener();
 render();

@@ -35,6 +35,16 @@ function buatId() {
   return terbesar + 1;
 }
 
+function hitungRingkasan() {
+  let pemasukan = 0;
+  let pengeluaran = 0;
+  for (const transaksi of state.transaksi) {
+    if (transaksi.jenis === 'pemasukan') pemasukan += transaksi.nominal;
+    else pengeluaran += transaksi.nominal;
+  }
+  return { pemasukan, pengeluaran, saldo: pemasukan - pengeluaran };
+}
+
 function bandingkanTerbaru(a, b) {
   if (a.tanggal === b.tanggal) return b.id - a.id;
   return a.tanggal < b.tanggal ? 1 : -1;
@@ -80,6 +90,13 @@ function buatItemTransaksi(transaksi) {
   return item;
 }
 
+function renderRingkasan() {
+  const ringkasan = hitungRingkasan();
+  elemen('#total-pemasukan').textContent = formatRupiah(ringkasan.pemasukan);
+  elemen('#total-pengeluaran').textContent = formatRupiah(ringkasan.pengeluaran);
+  elemen('#saldo').textContent = formatRupiah(ringkasan.saldo);
+}
+
 function renderDaftar() {
   const daftar = [...state.transaksi].sort(bandingkanTerbaru);
   const wadah = elemen('#daftar-transaksi');
@@ -91,6 +108,7 @@ function renderDaftar() {
 }
 
 function render() {
+  renderRingkasan();
   renderDaftar();
 }
 

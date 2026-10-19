@@ -50,6 +50,16 @@ function bandingkanTerbaru(a, b) {
   return a.tanggal < b.tanggal ? 1 : -1;
 }
 
+function validasiTransaksi(data) {
+  if (!data.tanggal) return 'Tanggal wajib diisi.';
+  if (!(data.nominal > 0)) return 'Nominal harus lebih dari 0.';
+  return '';
+}
+
+function tampilkanError(selector, pesan) {
+  elemen(selector).textContent = pesan;
+}
+
 function buatTombol(teks, aksi, id) {
   const tombol = document.createElement('button');
   tombol.type = 'button';
@@ -131,6 +141,9 @@ function kosongkanFormTransaksi() {
 function simpanTransaksi(event) {
   event.preventDefault();
   const data = ambilDataTransaksi();
+  const pesan = validasiTransaksi(data);
+  tampilkanError('#error-transaksi', pesan);
+  if (pesan) return;
 
   state.transaksi.push({ id: buatId(), ...data });
   kosongkanFormTransaksi();

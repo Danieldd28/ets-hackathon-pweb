@@ -61,7 +61,8 @@ h2 {
   font-size: 1.125rem;
 }
 
-form {
+form,
+#filter {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   gap: 0.5rem 1rem;

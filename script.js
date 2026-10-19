@@ -7,6 +7,7 @@ const state = {
   tagihan: [],
   editId: null,
   hapusId: null,
+  filter: { jenis: '', kategori: '', dari: '', sampai: '', cari: '' },
 };
 
 function elemen(selector) {
@@ -58,6 +59,19 @@ function hitungRingkasan() {
     if (tagihan.status === 'belum dibayar') piutang += tagihan.nominal;
   }
   return { pemasukan, pengeluaran, saldo: pemasukan - pengeluaran, piutang };
+}
+
+function saringTransaksi() {
+  const filter = state.filter;
+  const kata = filter.cari.toLowerCase();
+  return state.transaksi.filter(
+    (t) =>
+      (!filter.jenis || t.jenis === filter.jenis) &&
+      (!filter.kategori || t.kategori === filter.kategori) &&
+      (!filter.dari || t.tanggal >= filter.dari) &&
+      (!filter.sampai || t.tanggal <= filter.sampai) &&
+      t.catatan.toLowerCase().includes(kata)
+  );
 }
 
 function bandingkanTerbaru(a, b) {
@@ -146,7 +160,7 @@ function renderRingkasan() {
 }
 
 function renderDaftar() {
-  const daftar = [...state.transaksi].sort(bandingkanTerbaru);
+  const daftar = saringTransaksi().sort(bandingkanTerbaru);
   const wadah = elemen('#daftar-transaksi');
   if (daftar.length === 0) {
     wadah.replaceChildren(buatPesanKosong('Belum ada transaksi yang cocok.'));
@@ -297,8 +311,13 @@ function tanganiAksiTagihan(event) {
   render();
 }
 
+function ubahFilter(event) {
+  state.filter[event.target.name] = event.target.value;
+  render();
+}
+
 function isiPilihanKategori() {
-  for (const selector of ['#input-kategori']) {
+  for (const selector of ['#input-kategori', '#filter-kategori']) {
     for (const kategori of KATEGORI) {
       const pilihan = document.createElement('option');
       pilihan.value = kategori;
@@ -314,6 +333,7 @@ function pasangListener() {
   elemen('#daftar-transaksi').addEventListener('click', tanganiAksiTransaksi);
   elemen('#form-tagihan').addEventListener('submit', simpanTagihan);
   elemen('#daftar-tagihan').addEventListener('click', tanganiAksiTagihan);
+  elemen('#filter').addEventListener('input', ubahFilter);
 }
 
 state.transaksi = muatData(KUNCI_TRANSAKSI);

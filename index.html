@@ -70,6 +70,28 @@
 
     <section id="daftar">
       <h2>Daftar transaksi</h2>
+      <div id="filter">
+        <label for="filter-jenis">Jenis</label>
+        <select id="filter-jenis" name="jenis">
+          <option value="">Semua</option>
+          <option value="pemasukan">Pemasukan</option>
+          <option value="pengeluaran">Pengeluaran</option>
+        </select>
+
+        <label for="filter-kategori">Kategori</label>
+        <select id="filter-kategori" name="kategori">
+          <option value="">Semua</option>
+        </select>
+
+        <label for="filter-dari">Dari tanggal</label>
+        <input id="filter-dari" name="dari" type="date">
+
+        <label for="filter-sampai">Sampai tanggal</label>
+        <input id="filter-sampai" name="sampai" type="date">
+
+        <label for="filter-cari">Cari catatan</label>
+        <input id="filter-cari" name="cari" type="text" autocomplete="off">
+      </div>
       <ul id="daftar-transaksi"></ul>
     </section>
   </main>

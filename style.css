@@ -131,10 +131,12 @@ li > span:first-child {
   flex: 1 1 12rem;
 }
 
-.pemasukan {
+.pemasukan,
+.lunas {
   color: var(--warna-masuk);
 }
 
-.pengeluaran {
+.pengeluaran,
+.belum-dibayar {
   color: var(--warna-keluar);
 }

@@ -1,8 +1,10 @@
 const KUNCI_TRANSAKSI = 'ets-keuangan:transaksi';
+const KUNCI_TAGIHAN = 'ets-keuangan:tagihan';
 const KATEGORI = ['Proyek', 'Makan', 'Transport', 'Peralatan', 'Lainnya'];
 
 const state = {
   transaksi: [],
+  tagihan: [],
   hapusId: null,
 };
 
@@ -25,11 +27,12 @@ function muatData(kunci) {
 
 function simpanData() {
   localStorage.setItem(KUNCI_TRANSAKSI, JSON.stringify(state.transaksi));
+  localStorage.setItem(KUNCI_TAGIHAN, JSON.stringify(state.tagihan));
 }
 
 function buatId() {
   let terbesar = 0;
-  for (const item of state.transaksi) {
+  for (const item of [...state.transaksi, ...state.tagihan]) {
     if (item.id > terbesar) terbesar = item.id;
   }
   return terbesar + 1;
@@ -38,11 +41,15 @@ function buatId() {
 function hitungRingkasan() {
   let pemasukan = 0;
   let pengeluaran = 0;
+  let piutang = 0;
   for (const transaksi of state.transaksi) {
     if (transaksi.jenis === 'pemasukan') pemasukan += transaksi.nominal;
     else pengeluaran += transaksi.nominal;
   }
-  return { pemasukan, pengeluaran, saldo: pemasukan - pengeluaran };
+  for (const tagihan of state.tagihan) {
+    if (tagihan.status === 'belum dibayar') piutang += tagihan.nominal;
+  }
+  return { pemasukan, pengeluaran, saldo: pemasukan - pengeluaran, piutang };
 }
 
 function bandingkanTerbaru(a, b) {
@@ -54,6 +61,11 @@ function validasiTransaksi(data) {
   if (!data.tanggal) return 'Tanggal wajib diisi.';
   if (!(data.nominal > 0)) return 'Nominal harus lebih dari 0.';
   return '';
+}
+
+function validasiTagihan(data) {
+  if (!data.klien) return 'Nama klien wajib diisi.';
+  return validasiTransaksi(data);
 }
 
 function tampilkanError(selector, pesan) {
@@ -100,11 +112,29 @@ function buatItemTransaksi(transaksi) {
   return item;
 }
 
+function buatItemTagihan(tagihan) {
+  const item = document.createElement('li');
+
+  const info = document.createElement('span');
+  info.textContent = `${tagihan.tanggal} · ${tagihan.klien} · ${formatRupiah(tagihan.nominal)}`;
+
+  const status = document.createElement('strong');
+  status.className = tagihan.status === 'lunas' ? 'lunas' : 'belum-dibayar';
+  status.textContent = tagihan.status;
+
+  item.append(info, status);
+  if (tagihan.status === 'belum dibayar') {
+    item.append(buatTombol('Tandai lunas', 'lunas', tagihan.id));
+  }
+  return item;
+}
+
 function renderRingkasan() {
   const ringkasan = hitungRingkasan();
   elemen('#total-pemasukan').textContent = formatRupiah(ringkasan.pemasukan);
   elemen('#total-pengeluaran').textContent = formatRupiah(ringkasan.pengeluaran);
   elemen('#saldo').textContent = formatRupiah(ringkasan.saldo);
+  elemen('#total-piutang').textContent = formatRupiah(ringkasan.piutang);
 }
 
 function renderDaftar() {
@@ -117,9 +147,20 @@ function renderDaftar() {
   wadah.replaceChildren(...daftar.map(buatItemTransaksi));
 }
 
+function renderTagihan() {
+  const daftar = [...state.tagihan].sort(bandingkanTerbaru);
+  const wadah = elemen('#daftar-tagihan');
+  if (daftar.length === 0) {
+    wadah.replaceChildren(buatPesanKosong('Belum ada tagihan.'));
+    return;
+  }
+  wadah.replaceChildren(...daftar.map(buatItemTagihan));
+}
+
 function render() {
   renderRingkasan();
   renderDaftar();
+  renderTagihan();
 }
 
 function ambilDataTransaksi() {
@@ -168,6 +209,47 @@ function tanganiAksiTransaksi(event) {
   render();
 }
 
+function simpanTagihan(event) {
+  event.preventDefault();
+  const data = {
+    tanggal: elemen('#tagihan-tanggal').value,
+    klien: elemen('#tagihan-klien').value,
+    nominal: Number(elemen('#tagihan-nominal').value),
+  };
+  const pesan = validasiTagihan(data);
+  tampilkanError('#error-tagihan', pesan);
+  if (pesan) return;
+
+  state.tagihan.push({ id: buatId(), ...data, status: 'belum dibayar' });
+  elemen('#tagihan-tanggal').value = '';
+  elemen('#tagihan-klien').value = '';
+  elemen('#tagihan-nominal').value = '';
+  simpanData();
+  render();
+}
+
+function tandaiLunas(id) {
+  const tagihan = cariById(state.tagihan, id);
+  if (!tagihan || tagihan.status === 'lunas') return;
+  tagihan.status = 'lunas';
+  state.transaksi.push({
+    id: buatId(),
+    tanggal: tagihan.tanggal,
+    jenis: 'pemasukan',
+    kategori: 'Proyek',
+    nominal: tagihan.nominal,
+    catatan: `Tagihan lunas: ${tagihan.klien}`,
+  });
+  simpanData();
+}
+
+function tanganiAksiTagihan(event) {
+  const tombol = event.target.closest('[data-aksi="lunas"]');
+  if (!tombol) return;
+  tandaiLunas(Number(tombol.dataset.id));
+  render();
+}
+
 function isiPilihanKategori() {
   for (const selector of ['#input-kategori']) {
     for (const kategori of KATEGORI) {
@@ -182,9 +264,12 @@ function isiPilihanKategori() {
 function pasangListener() {
   elemen('#form-transaksi').addEventListener('submit', simpanTransaksi);
   elemen('#daftar-transaksi').addEventListener('click', tanganiAksiTransaksi);
+  elemen('#form-tagihan').addEventListener('submit', simpanTagihan);
+  elemen('#daftar-tagihan').addEventListener('click', tanganiAksiTagihan);
 }
 
 state.transaksi = muatData(KUNCI_TRANSAKSI);
+state.tagihan = muatData(KUNCI_TAGIHAN);
 isiPilihanKategori();
 pasangListener();
 render();

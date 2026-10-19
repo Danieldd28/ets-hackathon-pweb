@@ -19,7 +19,26 @@
         <p>Pemasukan <strong id="total-pemasukan"></strong></p>
         <p>Pengeluaran <strong id="total-pengeluaran"></strong></p>
         <p>Saldo <strong id="saldo"></strong></p>
+        <p>Total piutang <strong id="total-piutang"></strong></p>
       </div>
+    </section>
+
+    <section id="tagihan">
+      <h2>Tagihan ke klien</h2>
+      <form id="form-tagihan" novalidate>
+        <label for="tagihan-tanggal">Tanggal tagihan</label>
+        <input id="tagihan-tanggal" type="date">
+
+        <label for="tagihan-klien">Klien</label>
+        <input id="tagihan-klien" type="text" autocomplete="off">
+
+        <label for="tagihan-nominal">Nominal (Rp)</label>
+        <input id="tagihan-nominal" type="number" min="0">
+
+        <button type="submit">Tambah tagihan</button>
+        <p id="error-tagihan" class="error" role="alert"></p>
+      </form>
+      <ul id="daftar-tagihan"></ul>
     </section>
 
     <section id="transaksi">
